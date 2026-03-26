@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Weather App</title>
+
+<style>
+body{
+    font-family: Arial;
+    background: linear-gradient(to right,#1d2671,#c33764);
+    color:white;
+    text-align:center;
+    padding:50px;
+}
+
+.app{
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding:25px;
+    border-radius:15px;
+    width:320px;
+    margin:auto;
+    box-shadow:0 0 15px rgba(0,0,0,0.3);
+}
+
+input{
+    padding:10px;
+    width:65%;
+    border:none;
+    border-radius:5px;
+    outline:none;
+}
+
+button{
+    padding:10px;
+    border:none;
+    border-radius:5px;
+    background:#00f2fe;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.weather img{
+    width:80px;
+}
+
+.weather{
+    margin-top:20px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>🌍 Weather Finder</h1>
+
+<div class="app">
+    <input type="text" id="city" placeholder="Enter city name" onkeypress="handleKey(event)">
+    <button onclick="getWeather()">Search</button>
+
+    <div class="weather" id="result"></div>
+</div>
+
+<script>
+const apiKey = "4608d522866c00d5c116a289d63cef32";
+
+function handleKey(e){
+    if(e.key === "Enter"){
+        getWeather();
+    }
+}
+
+async function getWeather(){
+    const city = document.getElementById("city").value;
+
+    if(city === ""){
+        alert("Please enter city name");
+        return;
+    }
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+    try{
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(data.cod === 200){
+
+            const icon = data.weather[0].icon;
+
+            document.getElementById("result").innerHTML = `
+                <h2>${data.name}</h2>
+                <img src="https://openweathermap.org/img/wn/${icon}@2x.png">
+                <p>🌡️ ${data.main.temp} °C</p>
+                <p>☁️ ${data.weather[0].description}</p>
+                <p>💧 Humidity: ${data.main.humidity}%</p>
+                <p>🌬️ Wind: ${data.wind.speed} m/s</p>
+            `;
+
+            changeBackground(data.weather[0].main);
+
+        }else{
+            document.getElementById("result").innerHTML = "❌ City not found";
+        }
+
+    }catch{
+        document.getElementById("result").innerHTML = "⚠️ Error fetching data";
+    }
+}
+
+function changeBackground(weather){
+    if(weather === "Clear"){
+        document.body.style.background = "linear-gradient(to right,#f7971e,#ffd200)";
+    }
+    else if(weather === "Clouds"){
+        document.body.style.background = "linear-gradient(to right,#757f9a,#d7dde8)";
+    }
+    else if(weather === "Rain"){
+        document.body.style.background = "linear-gradient(to right,#314755,#26a0da)";
+    }
+    else{
+        document.body.style.background = "linear-gradient(to right,#1d2671,#c33764)";
+    }
+}
+</script>
+
+</body>
+</html>
